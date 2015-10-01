@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/think4j.iml" filepath="$PROJECT_DIR$/think4j.iml" />
+      <module fileurl="file://$PROJECT_DIR$/think4j-context/think4j-context.iml" filepath="$PROJECT_DIR$/think4j-context/think4j-context.iml" />
+      <module fileurl="file://$PROJECT_DIR$/think4j-jdbc/think4j-jdbc.iml" filepath="$PROJECT_DIR$/think4j-jdbc/think4j-jdbc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/think4j-utils/think4j-utils.iml" filepath="$PROJECT_DIR$/think4j-utils/think4j-utils.iml" />
+    </modules>
+  </component>
+</project>
