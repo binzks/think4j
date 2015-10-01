@@ -33,15 +33,22 @@ public class SqlPrepare {
                 tableAliasMap.put(joins.get(i).getName(), TABLE_ALIAS_PREFIX + (i + 1));
             }
             //生成关联sql语句
-            StringBuilder joinBuffer = new StringBuilder();
+            StringBuilder joinBuilder = new StringBuilder();
             for (Join join : joins) {
                 String alias = tableAliasMap.get(join.getName());
                 String joinAlias = getTableAlias(join.getJoinName());
-                joinBuffer.append(" ").append(join.getType()).append(" `").append(join.getTable()).append("` AS ")
-                        .append(alias).append(" ON ").append(alias).append(".").append(join.getKey()).
+                joinBuilder.append(" ").append(join.getType()).append(" ");
+                String joinTable = join.getTable();
+                // 如果关联表名不包含“.”则表名增加``，防止表名是关键字，如果包含“.”则认为是跨库查询，不增加``
+                if (!StringUtils.contains(joinTable, ".")) {
+                    joinBuilder.append("`").append(joinTable).append("`");
+                } else {
+                    joinBuilder.append(joinTable);
+                }
+                joinBuilder.append(" AS ").append(alias).append(" ON ").append(alias).append(".").append(join.getKey()).
                         append("=").append(joinAlias).append(".").append(join.getJoinKey());
             }
-            joinSql = joinBuffer.toString();
+            joinSql = joinBuilder.toString();
         }
     }
 

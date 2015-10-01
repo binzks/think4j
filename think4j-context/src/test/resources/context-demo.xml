@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root type="think4j-context">
+<root type="配置文件类型，填写think4j-context，否则不加载" initTable="是否自动初始化系统表，没有新增，有字段不一样修改，默认false">
     <params>
         <!-- value ${}可以设置参数，例如设置${key}会取System.getProperty(key)值替换原${key} -->
         <param key="参数名称，用于获取参数值，全局唯一" value="参数值" describe="参数描述，用于说明参数作用，程序不使用这个属性"></param>

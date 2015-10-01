@@ -1,6 +1,7 @@
 package org.think4jframework.context;
 
 import com.google.gson.Gson;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
@@ -41,6 +42,9 @@ public class Think4jContext implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         springContext = applicationContext;
+        // 加载spring配置后自动加载resources目录下的配置文件
+        String resourcesPath = this.getClass().getClassLoader().getResource("").getPath();
+        init(null, resourcesPath);
     }
 
     /**
@@ -81,8 +85,9 @@ public class Think4jContext implements ApplicationContextAware {
                     if (fileName.toLowerCase().endsWith(".xml")) {
                         Element root = reader.read(file).getRootElement();
                         if (root.attributeValue("type").equals("think4j-context")) {
+                            String initTable = root.attributeValue("initTable");
                             setParamConfig(root.element("params"));
-                            setTableConfig(root.element("tables"));
+                            setTableConfig(root.element("tables"), initTable);
                             setModelConfig(root.element("models"));
                             logger.debug("加载think4j-context配置文件[" + fileName + "]");
                         }
@@ -132,7 +137,7 @@ public class Think4jContext implements ApplicationContextAware {
      * @param root 表的xml配置
      * @throws Exception 表重名异常
      */
-    private static void setTableConfig(Element root) throws Exception {
+    private static void setTableConfig(Element root, String initTable) throws Exception {
         if (null == root) {
             return;
         }
@@ -145,6 +150,9 @@ public class Think4jContext implements ApplicationContextAware {
             }
             JdbcTemplate jdbcTemplate = (JdbcTemplate) springContext.getBean(table.getDsName());
             JdbcTable jdbcTable = TableFactory.getTable(table, jdbcTemplate);
+            if (null != initTable && initTable.toLowerCase().equals(Boolean.TRUE.toString())) {
+                jdbcTable.initTable();
+            }
             jdbcTableMap.put(key, jdbcTable);
         }
         logger.debug("加载table：" + new Gson().toJson(list));
