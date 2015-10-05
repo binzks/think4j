@@ -44,17 +44,21 @@ public class MysqlModel implements JdbcModel {
         //如果model对于的列为空，则获取table所对应的所有列作为model的列
         Map<String, Column> columns = this.model.getColumns();
         if (null == columns) {
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(String.format("describe %s", this.model.getTableName()));
-            columns = new HashMap<>();
-            for (Map<String, Object> map : list) {
-                Column column = new Column();
-                String name = (String) map.get("Field");
-                column.setName(name);
-                column.setJoinName(null);
-                column.setAlias(null);
-                columns.put(name, column);
+            try {
+                List<Map<String, Object>> list = jdbcTemplate.queryForList(String.format("describe %s", this.model.getTableName()));
+                columns = new HashMap<>();
+                for (Map<String, Object> map : list) {
+                    Column column = new Column();
+                    String name = (String) map.get("Field");
+                    column.setName(name);
+                    column.setJoinName(null);
+                    column.setAlias(null);
+                    columns.put(name, column);
+                }
+                this.model.setColumns(columns);
+            } catch (Exception e) {
+                logger.error("初始化JdbcModel列失败：" + e);
             }
-            this.model.setColumns(columns);
         }
         this.sqlPrepare = new SqlPrepare(model.getJoins());
         this.columnSql = this.sqlPrepare.getColumnSql(columns);

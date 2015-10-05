@@ -4,6 +4,7 @@ package org.think4jframework.jdbc.support.table;
 import org.think4jframework.jdbc.support.DataBaseType;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhoubin on 15/9/6.
@@ -25,7 +26,7 @@ public class Table {
 
     private List<Index> indexes; //表所有的索引，在创建表的时候会将索引添加到数据库
 
-    private List<Object[]> data; //表的初始化数据，在创建表的时候会将数据插入表中
+    private List<Map<String, String>> data; //表的初始化数据，在创建表的时候会将数据插入表中
 
     public DataBaseType getDataBaseType() {
         return dataBaseType;
@@ -83,11 +84,11 @@ public class Table {
         this.indexes = indexes;
     }
 
-    public List<Object[]> getData() {
+    public List<Map<String, String>> getData() {
         return data;
     }
 
-    public void setData(List<Object[]> data) {
+    public void setData(List<Map<String, String>> data) {
         this.data = data;
     }
 }

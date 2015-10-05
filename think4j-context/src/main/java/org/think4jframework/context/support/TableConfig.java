@@ -7,9 +7,7 @@ import org.think4jframework.jdbc.support.table.Field;
 import org.think4jframework.jdbc.support.table.Index;
 import org.think4jframework.jdbc.support.table.Table;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +23,7 @@ public class TableConfig {
             String name = element.attributeValue("name");
             List<Field> fields = getFields(element.element("fields"));
             List<Index> indexes = getIndexes(element.element("indexes"));
-            List<Object[]> data = getData(element.element("datas"), fields);
+            List<Map<String, String>> data = getData(element.element("defaults"), fields);
             Table table = new Table();
             table.setDataBaseType(DataBaseType.valueOfString(element.attributeValue("type")));
             table.setName(name);
@@ -110,15 +108,21 @@ public class TableConfig {
      * @param fields      表的字段定义
      * @return 数据列表
      */
-    private List<Object[]> getData(Element dataElement, List<Field> fields) {
+    private List<Map<String, String>> getData(Element dataElement, List<Field> fields) {
         if (null == dataElement || null == fields) {
             return null;
         }
-        List<Object[]> list = new ArrayList<>();
+        List<Map<String, String>> list = new ArrayList<>();
         for (Iterator i = dataElement.elementIterator(); i.hasNext(); ) {
             Element element = (Element) i.next();
-            List<Object> data = fields.stream().map(field -> element.attributeValue(field.getName())).collect(Collectors.toList());
-            list.add(data.toArray());
+            Map<String, String> map = new HashMap<>();
+            for (Field field : fields) {
+                String value = element.attributeValue(field.getName());
+                if (StringUtils.isNotBlank(value)) {
+                    map.put(field.getName(), value);
+                }
+            }
+            list.add(map);
         }
         return list;
     }

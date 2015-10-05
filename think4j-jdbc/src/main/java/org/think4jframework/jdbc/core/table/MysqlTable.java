@@ -8,8 +8,10 @@ import org.think4jframework.jdbc.support.table.Field;
 import org.think4jframework.jdbc.support.table.Index;
 import org.think4jframework.jdbc.support.table.Table;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by zhoubin on 15/9/6.
@@ -39,100 +41,118 @@ public class MysqlTable implements JdbcTable {
             String sql = getCreateTableSql();
             logger.debug(sql);
             jdbcTemplate.execute(sql);
-            initIndexes();
-            initTableData();
-        } else {
-            String sql = getAlertTableSql(list);
-            if (StringUtils.isNotBlank(sql)) {
-                logger.debug(sql);
-                jdbcTemplate.execute(sql);
+            List<String> indexes = getCreateIndexSql();
+            if (null != indexes) {
+                for (String index : indexes) {
+                    logger.debug(index);
+                    jdbcTemplate.execute(index);
+                }
+            }
+            List<String> data = getCreateDataSql();
+            if (null != data) {
+                for (String d : data) {
+                    logger.debug(d);
+                    jdbcTemplate.execute(d);
+                }
             }
         }
     }
 
+    @Override
+    public String getCreateSql() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SET FOREIGN_KEY_CHECKS = 0;");
+        sql.append("DROP TABLE IF EXISTS `" + this.table.getName() + "`;");
+        sql.append(getCreateSql()).append(";");
+        List<String> indexes = getCreateIndexSql();
+        if (null != indexes) {
+            for (String index : indexes) {
+                sql.append(index).append(";");
+            }
+        }
+        List<String> data = getCreateDataSql();
+        if (null != data) {
+            sql.append("BEGIN;");
+            for (String d : data) {
+                sql.append(d).append(";");
+            }
+            sql.append("COMMIT;");
+        }
+        sql.append("SET FOREIGN_KEY_CHECKS = 1;");
+        return sql.toString();
+    }
+
     /***
-     * 创建表的索引
+     * 获取创建表的sql语句
+     *
+     * @return 返回创建表的sql语句
      */
-    private void initIndexes() {
+    private String getCreateTableSql() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE `").append(this.table.getName()).append("` (");
+        for (Field field : this.table.getFields()) {
+            sql.append(getFieldSql(field));
+            sql.append(",");
+        }
+        sql.append("PRIMARY KEY (`").append(this.table.getPkName()).append("`))");
+        String comment = this.table.getComment();
+        if (StringUtils.isNotBlank(comment)) {
+            sql.append(" COMMENT='").append(comment).append("'");
+        }
+        return sql.toString();
+    }
+
+    /**
+     * 创建表的索引
+     *
+     * @return sql语句列表
+     */
+    private List<String> getCreateIndexSql() {
         List<Index> indexes = this.table.getIndexes();
         if (null == indexes) {
-            return;
+            return null;
         }
+        List<String> list = new ArrayList<>();
         for (Index index : indexes) {
             StringBuilder sql = new StringBuilder();
             sql.append("ALTER TABLE `").append(this.table.getName()).append("` ADD");
             if (index.getType().toUpperCase().equals("UNIQUE")) {
                 sql.append(" UNIQUE ");
             }
-            sql.append(" INDEX `").append(index.getName()).append("` (").append(index.getFields()).append(")  COMMENT '").append(index.getComment()).append("';");
-            logger.debug(sql.toString());
-            this.jdbcTemplate.execute(sql.toString());
+            sql.append(" INDEX `").append(index.getName()).append("` (").append(index.getFields()).append(")  COMMENT '").append(index.getComment()).append("'");
+            list.add(sql.toString());
         }
+        return list;
     }
 
-    /***
-     * 添加表的默认数据
-     */
-    private void initTableData() {
-        List<Object[]> data = this.table.getData();
-        if (null == data) {
-            return;
-        }
-        StringBuilder colSql = new StringBuilder();
-        StringBuilder valSql = new StringBuilder();
-        for (Field field : this.table.getFields()) {
-            colSql.append(",`").append(field.getName()).append("`");
-            valSql.append(",?");
-        }
-        if (colSql.length() > 0) {
-            colSql.delete(0, 1);
-            valSql.delete(0, 1);
-        }
-        String dataSql = String.format("INSERT INTO `%s`(%s) VALUES (%s)", this.table.getName(), colSql, valSql);
-        logger.debug(dataSql);
-        jdbcTemplate.batchUpdate(dataSql, data);
-    }
-
-    /***
-     * 检查字段定义和表实际字段是否一致
+    /**
+     * 获取新增默认数据的sql语句
      *
-     * @param type         数据库字段类型
-     * @param isNull       数据库字段是否可空
-     * @param defaultValue 数据库字段默认值
-     * @param field        表定义的字段
-     * @return 一致返回true 不一致返回false
+     * @return sql语句列表
      */
-    private boolean checkEqual(String type, String isNull, String defaultValue, Field field) {
-        String fieldType = field.getType();
-        String size = field.getSize();
-        if (null != size) {
-            fieldType += "(" + size + ")";
+    private List<String> getCreateDataSql() {
+        List<Map<String, String>> data = this.table.getData();
+        if (null == data) {
+            return null;
         }
-        if (!type.toUpperCase().equals(fieldType.toUpperCase())) {
-            return false;
-        }
-        String fieldIsNull = "NO";
-        if (field.getIsNull()) {
-            fieldIsNull = "YES";
-        }
-        if (!isNull.equals(fieldIsNull)) {
-            return false;
-        }
-        String fieldDefault = field.getDefaultValue();
-        if (null == defaultValue) {
-            if (null != fieldDefault && !fieldDefault.toUpperCase().equals("NULL")) {
-                return false;
-            }
-        } else {
-            if (null == fieldDefault) {
-                return false;
-            } else {
-                if (!defaultValue.toUpperCase().equals(fieldDefault.toUpperCase())) {
-                    return false;
+        List<String> list = new ArrayList<>();
+        for (Map<String, String> map : data) {
+            StringBuilder colSql = new StringBuilder();
+            StringBuilder valSql = new StringBuilder();
+            for (Entry<String, String> entry : map.entrySet()) {
+                if (colSql.length() > 0) {
+                    colSql.append(",");
                 }
+                colSql.append("`").append(entry.getKey()).append("`");
+                if (valSql.length() > 0) {
+                    valSql.append(",");
+                }
+                valSql.append("'").append(entry.getValue()).append("'");
             }
+            String sql = String.format("INSERT INTO `%s`(%s) VALUES (%s)", this.table.getName(), colSql, valSql);
+            list.add(sql);
         }
-        return true;
+        return list;
     }
 
     /***
@@ -170,72 +190,5 @@ public class MysqlTable implements JdbcTable {
         return sql.toString();
     }
 
-    /***
-     * 获取创建表的sql语句
-     *
-     * @return 返回创建表的sql语句
-     */
-    private String getCreateTableSql() {
-        StringBuilder sql = new StringBuilder();
-        sql.append("CREATE TABLE `").append(this.table.getName()).append("` (");
-        for (Field field : this.table.getFields()) {
-            sql.append(getFieldSql(field));
-            sql.append(",");
-        }
-        sql.append("PRIMARY KEY (`").append(this.table.getPkName()).append("`))");
-        String comment = this.table.getComment();
-        if (StringUtils.isNotBlank(comment)) {
-            sql.append(" COMMENT='").append(comment).append("'");
-        }
-        return sql.toString();
-    }
 
-    /***
-     * 获得修改表的sql语句，只修改字段，不修改索引
-     *
-     * @param list 表的字段列表
-     * @return 修改表的sql语句
-     */
-    private String getAlertTableSql(List<Map<String, Object>> list) {
-        StringBuilder sql = new StringBuilder();
-        String pkName = this.table.getPkName();
-        for (Field field : this.table.getFields()) {
-            String name = field.getName();
-            // 主键字段不处理
-            if (name.equals(pkName)) {
-                continue;
-            }
-            String fieldSqlType = "add";
-            for (Map<String, Object> map : list) {
-                if (map.get("Field").equals(name)) {
-                    String type = (String) map.get("Type");
-                    String isNull = (String) map.get("NuLL");
-                    String defaultValue = (String) map.get("Default");
-                    if (checkEqual(type, isNull, defaultValue, field)) {
-                        fieldSqlType = "null";
-                    } else {
-                        fieldSqlType = "change";
-                    }
-                    list.remove(map);
-                    break;
-                }
-            }
-            if (fieldSqlType.equals("add")) {
-                if (sql.length() > 0) {
-                    sql.append(",");
-                }
-                sql.append(" ADD ").append(getFieldSql(field));
-            } else if (fieldSqlType.equals("change")) {
-                if (sql.length() > 0) {
-                    sql.append(",");
-                }
-                sql.append(" CHANGE `").append(name).append("` ").append(getFieldSql(field));
-            }
-        }
-        if (sql.length() > 0) {
-            sql.insert(0, "ALTER TABLE `" + this.table.getName() + "`");
-            sql.append(";");
-        }
-        return sql.toString();
-    }
 }

@@ -68,6 +68,9 @@ public class SqlPrepare {
      * @return 列的语句块
      */
     public String getColumnSql(Map<String, Column> columns) {
+        if (null == columns) {
+            return "";
+        }
         StringBuilder columnBuffer = new StringBuilder();
         for (Column column : columns.values()) {
             if (columnBuffer.length() > 0) {

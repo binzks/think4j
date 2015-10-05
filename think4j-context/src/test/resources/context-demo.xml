@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root type="配置文件类型，填写think4j-context，否则不加载" initTable="是否自动初始化系统表，没有新增，有字段不一样修改，默认false">
+<root type="配置文件类型，填写think4j-context，否则不加载" initTable="是否自动初始化系统表，如果表不存在则创建表，默认false">
     <params>
         <!-- value ${}可以设置参数，例如设置${key}会取System.getProperty(key)值替换原${key} -->
         <param key="参数名称，用于获取参数值，全局唯一" value="参数值" describe="参数描述，用于说明参数作用，程序不使用这个属性"></param>
@@ -15,10 +15,10 @@
                 <index name="索引名称" type="INDEX,UNIQUE索引或者唯一，默认为唯一" comment="索引描述"
                        fields="索引字段，多个“,”号隔开，关键字加上``，如`code`,`name`"></index>
             </indexes>
-            <datas>
+            <defaults>
                 <!-- 根据表的字段定义生成数据，格式 字段名=字段值，例如表有字段id，code则数据如下 -->
                 <data id="1" code="wisek"></data>
-            </datas>
+            </defaults>
         </table>
     </tables>
     <models>

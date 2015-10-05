@@ -213,6 +213,21 @@ public class Think4jContext implements ApplicationContextAware {
         return jdbcTableMap.get(key);
     }
 
+    /**
+     * 根据表名获取表的创建sql语句，包括创建sql，索引，默认添加数据，如果表定义不存在则返回空字符串
+     *
+     * @param key 表名
+     * @return sql语句
+     */
+    public static String getCreateSql(String key) {
+        JdbcTable jdbcTable = jdbcTableMap.get(key);
+        if (null != jdbcTable) {
+            return jdbcTable.getCreateSql();
+        } else {
+            return "";
+        }
+    }
+
     /***
      * 根据model的名称获取数据处理model的对象
      *
