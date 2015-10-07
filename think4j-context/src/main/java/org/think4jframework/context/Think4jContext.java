@@ -1,7 +1,6 @@
 package org.think4jframework.context;
 
 import com.google.gson.Gson;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
@@ -17,14 +16,15 @@ import org.think4jframework.jdbc.ModelFactory;
 import org.think4jframework.jdbc.TableFactory;
 import org.think4jframework.jdbc.support.JdbcModel;
 import org.think4jframework.jdbc.support.JdbcTable;
+import org.think4jframework.jdbc.support.model.Column;
+import org.think4jframework.jdbc.support.model.Join;
 import org.think4jframework.jdbc.support.model.Model;
+import org.think4jframework.jdbc.support.model.Order;
+import org.think4jframework.jdbc.support.table.Field;
 import org.think4jframework.jdbc.support.table.Table;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zhoubin on 15/9/30.
@@ -123,6 +123,7 @@ public class Think4jContext implements ApplicationContextAware {
                 String k = StringUtils.substringBetween(value, "${", "}");
                 String v = System.getProperty(k);
                 if (null == v) {
+                    logger.warn("参数配置[" + key + "]值[${" + k + "}]不存在");
                     v = "";
                 }
                 value = value.replace("${" + k + "}", v);

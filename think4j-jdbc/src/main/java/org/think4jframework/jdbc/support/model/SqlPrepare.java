@@ -170,14 +170,15 @@ public class SqlPrepare {
                 continue;
             }
             String colName = column.getName();
-            if (colName.equals(pkName)) {
-                continue;
-            }
             Object value;
             if (null != instance) {
                 value = getFieldValueByName(colName, instance);
             } else {
                 value = dataMap.get(colName);
+            }
+            // 如果是主键，并且值为null则不新增
+            if (colName.equals(pkName) && null == value) {
+                continue;
             }
             if (colSql.length() > 0) {
                 colSql.append(",");

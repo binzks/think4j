@@ -8,19 +8,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.think4jframework.jdbc.support.JdbcModel;
-import org.think4jframework.jdbc.support.model.Filter;
-import org.think4jframework.jdbc.support.model.Model;
-import org.think4jframework.jdbc.support.model.Order;
-import org.think4jframework.jdbc.support.model.Column;
-import org.think4jframework.jdbc.support.model.SqlPrepare;
-import org.think4jframework.jdbc.support.model.SqlValues;
+import org.think4jframework.jdbc.support.model.*;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zhoubin on 15/9/7.
@@ -69,6 +61,11 @@ public class MysqlModel implements JdbcModel {
     }
 
     @Override
+    public Model getModel() {
+        return this.model;
+    }
+
+    @Override
     public String getName() {
         return this.model.getName();
     }
@@ -105,6 +102,29 @@ public class MysqlModel implements JdbcModel {
         List<Object> values = sqlValues.getValues();
         logger.debug("sql: " + sql + " values: " + new Gson().toJson(values));
         this.jdbcTemplate.update(sql, values.toArray());
+    }
+
+    @Override
+    public int save(Map<String, Object> dataMap) {
+        return save(dataMap, this.model.getPkName());
+    }
+
+    @Override
+    public int save(Map<String, Object> dataMap, String key) {
+        Object value = dataMap.get(key);
+        if (null == value) {
+            return insert(null, dataMap);
+        } else {
+            List<Filter> filters = new ArrayList<>();
+            filters.add(new Filter(key, FilterType.Eq, value));
+            Map<String, Object> map = this.selectMap(filters);
+            if (null == map) {
+                return insert(null, dataMap);
+            } else {
+                update(dataMap);
+                return -1;
+            }
+        }
     }
 
     @Override

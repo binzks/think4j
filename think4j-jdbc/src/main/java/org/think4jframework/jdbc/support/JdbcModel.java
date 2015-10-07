@@ -23,6 +23,13 @@ public interface JdbcModel {
      */
     void setModel(Model model, JdbcTemplate jdbcTemplate);
 
+    /**
+     * 获取model定义
+     *
+     * @return model
+     */
+    Model getModel();
+
     /***
      * 获取model的名称标识
      *
@@ -65,6 +72,24 @@ public interface JdbcModel {
      */
     void delete(List<Filter> filters);
 
+    /**
+     * 保存数据，判断dataMap中主键字段的值，如果为null则新增数据，不为null则判断数据库是否存在主键值的数据，如果不存在则新增，存在则修改
+     * 不修改数据为null的字段
+     *
+     * @param dataMap 待保存的数据
+     * @return 新增数据则返回新增的id，修改数据返回-1
+     */
+    int save(Map<String, Object> dataMap);
+
+    /**
+     * 保存数据，判断dataMap中key字段的值，如果为null则新增数据，不为null则判断数据库是否存在key值的数据，如果不存在则新增，存在则修改
+     * 不修改数据为null的字段
+     *
+     * @param dataMap 待保存的数据
+     * @return 新增数据则返回新增的id，修改数据返回-1
+     */
+    int save(Map<String, Object> dataMap, String key);
+
     /***
      * 新增数据，返回新增数据的数据id，数据对象必须对应model列，并且有get字段名方法
      *
@@ -97,14 +122,14 @@ public interface JdbcModel {
     void update(Object instance);
 
     /***
-     * 修改数据，数据主键必须有值，不修改数据值为null的列
+     * 修改数据，数据主键必须有值，不修改数据值为null的列，不修改主键
      *
      * @param dataMap 待修改的数据
      */
     void update(Map<String, Object> dataMap);
 
     /***
-     * 修改数据，keyName字段必须有值，不修改数据值为null的列
+     * 修改数据，keyName字段必须有值，不修改数据值为null的列，不修改主键
      *
      * @param dataMap 待修改的数据
      * @param keyName 修改条件字段名称，以该字段作为修改的过滤字段
@@ -112,7 +137,7 @@ public interface JdbcModel {
     void update(Map<String, Object> dataMap, String keyName);
 
     /***
-     * 修改数据，数据主键必须有值
+     * 修改数据，数据主键必须有值，不修改主键
      *
      * @param dataMap      待修改的数据
      * @param isHandleNull 是否要修改值为null的字段true表示是
@@ -120,7 +145,7 @@ public interface JdbcModel {
     void update(Map<String, Object> dataMap, boolean isHandleNull);
 
     /***
-     * 修改数据，keyName字段必须有值
+     * 修改数据，keyName字段必须有值，不修改主键，不修改keyName值
      *
      * @param dataMap      待修改的数据
      * @param isHandleNull 是否要修改值为null的字段true表示是
@@ -129,14 +154,14 @@ public interface JdbcModel {
     void update(Map<String, Object> dataMap, boolean isHandleNull, String keyName);
 
     /***
-     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改值为null的数据
+     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改值为null的数据，不修改主键
      *
      * @param list 待修改的数据列表
      */
     void batchUpdate(List<Map<String, Object>> list);
 
     /***
-     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改值为null的数据
+     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改值为null的数据，不修改主键
      *
      * @param list    待修改的数据列表
      * @param keyName 修改条件字段名称，以该字段作为修改的过滤字段
@@ -144,7 +169,7 @@ public interface JdbcModel {
     void batchUpdate(List<Map<String, Object>> list, String keyName);
 
     /**
-     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句
+     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改主键
      *
      * @param list         待修改的数据列表
      * @param isHandleNull 是否要修改值为null的字段true表示是
@@ -152,7 +177,7 @@ public interface JdbcModel {
     void batchUpdate(List<Map<String, Object>> list, boolean isHandleNull);
 
     /***
-     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句
+     * 批量修改数据，list必须具有相同的数据结构，以第一条数据生成sql语句，不修改主键
      *
      * @param list         待修改的数据列表
      * @param isHandleNull 是否要修改值为null的字段true表示是

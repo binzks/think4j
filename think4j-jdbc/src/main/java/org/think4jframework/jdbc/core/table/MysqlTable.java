@@ -30,6 +30,11 @@ public class MysqlTable implements JdbcTable {
     }
 
     @Override
+    public Table getTable() {
+        return this.table;
+    }
+
+    @Override
     public void initTable() {
         List<Map<String, Object>> list = null;
         try {

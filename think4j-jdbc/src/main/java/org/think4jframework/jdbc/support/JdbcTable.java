@@ -26,6 +26,13 @@ public interface JdbcTable {
      */
     void setTable(Table table, JdbcTemplate jdbcTemplate);
 
+    /**
+     * 获取table定义
+     *
+     * @return table
+     */
+    Table getTable();
+
     /***
      * 初始化数据库表，如果表不存在则创建表、添加索引、添加初始化数据
      */
