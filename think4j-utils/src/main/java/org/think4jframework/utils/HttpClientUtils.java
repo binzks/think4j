@@ -1,6 +1,7 @@
 package org.think4jframework.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -23,6 +24,7 @@ public class HttpClientUtils {
 
     /**
      * 根据url获取http请求返回值
+     *
      * @param url 请求url
      * @return 返回值字符串
      * @throws Exception 异常
@@ -31,34 +33,58 @@ public class HttpClientUtils {
         return get(url, DEFAULT_ENCODING);
     }
 
-    /**
-     * 根据url获取http请求并返回一个对象，使用Gson获取对象
+    /***
+     * 根据url获取返回json格式的http请求并返回一个map对象
+     *
      * @param url 请求url
+     * @return map对象
+     * @throws Exception 异常
+     */
+    public static Map<String, Object> getFromJson(String url) throws Exception {
+        Gson gson = new Gson();
+        String value = get(url);
+        return gson.fromJson(value, new TypeToken<Map<String, Object>>() {
+        }.getType());
+    }
+
+    /**
+     * 根据url获取返回json格式的http请求并返回一个对象
+     *
+     * @param url   请求url
      * @param clazz 返回对象类
-     * @param <T> 返回对象
+     * @param <T>   返回对象
      * @return 返回T对象
      * @throws Exception 异常
      */
-    public static <T> T get(String url, Class<T> clazz) throws Exception {
+    public static <T> T getFromJson(String url, Class<T> clazz) throws Exception {
         Gson gson = new Gson();
         String value = get(url);
         return gson.fromJson(value, clazz);
     }
 
     /**
-     * 根据url获取http请求并返回一个对象，使用Gson获取对象，Type为Gson传递参数
-     * @param url 请求url
+     * 根据url获取返回json格式的http请求并返回一个对象，Type为Gson传递参数
+     *
+     * @param url  请求url
      * @param type 对象类型
-     * @param <T> 对象类型T
+     * @param <T>  对象类型T
      * @return 返回对象
      * @throws Exception 异常
      */
-    public static <T> T get(String url, Type type) throws Exception {
+    public static <T> T getFromJson(String url, Type type) throws Exception {
         Gson gson = new Gson();
         String value = get(url);
         return gson.fromJson(value, type);
     }
 
+    /**
+     * 根据url获取http请求返回字符串
+     *
+     * @param url      请求url
+     * @param encoding 编码格式，默认utf-8
+     * @return 请求结果字符串
+     * @throws Exception 异常
+     */
     public static String get(String url, String encoding) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
