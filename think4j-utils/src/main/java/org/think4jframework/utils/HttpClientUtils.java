@@ -22,24 +22,39 @@ public class HttpClientUtils {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
 
+    /**
+     * 根据url获取http请求返回值
+     * @param url 请求url
+     * @return 返回值字符串
+     * @throws Exception 异常
+     */
     public static String get(String url) throws Exception {
         return get(url, DEFAULT_ENCODING);
     }
 
-    public static Map<Object, Object> getMap(String url) throws Exception {
-        Gson gson = new Gson();
-        String value = get(url);
-        return gson.fromJson(value, new TypeToken<Map<Object, Object>>() {
-        }.getType());
-    }
-
-    public static <T> T getObject(String url, Class<T> clazz) throws Exception {
+    /**
+     * 根据url获取http请求并返回一个对象，使用Gson获取对象
+     * @param url 请求url
+     * @param clazz 返回对象类
+     * @param <T> 返回对象
+     * @return 返回T对象
+     * @throws Exception 异常
+     */
+    public static <T> T get(String url, Class<T> clazz) throws Exception {
         Gson gson = new Gson();
         String value = get(url);
         return gson.fromJson(value, clazz);
     }
 
-    public static <T> T getObject(String url, Type type) throws Exception {
+    /**
+     * 根据url获取http请求并返回一个对象，使用Gson获取对象，Type为Gson传递参数
+     * @param url 请求url
+     * @param type 对象类型
+     * @param <T> 对象类型T
+     * @return 返回对象
+     * @throws Exception 异常
+     */
+    public static <T> T get(String url, Type type) throws Exception {
         Gson gson = new Gson();
         String value = get(url);
         return gson.fromJson(value, type);
