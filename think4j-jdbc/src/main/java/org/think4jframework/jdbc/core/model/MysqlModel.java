@@ -121,7 +121,7 @@ public class MysqlModel implements JdbcModel {
             if (null == map) {
                 return insert(null, dataMap);
             } else {
-                update(dataMap);
+                update(dataMap, key);
                 return -1;
             }
         }
@@ -212,7 +212,6 @@ public class MysqlModel implements JdbcModel {
      */
     private void update(Object instance, Map<String, Object> dataMap, boolean isHandleNull, String keyName) {
         String pkName = this.model.getPkName();
-        // 如果过滤的
         if (null == keyName) {
             keyName = pkName;
         }

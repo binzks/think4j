@@ -1,5 +1,7 @@
 package org.think4jframework.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -11,6 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,6 +24,25 @@ public class HttpClientUtils {
 
     public static String get(String url) throws Exception {
         return get(url, DEFAULT_ENCODING);
+    }
+
+    public static Map<Object, Object> getMap(String url) throws Exception {
+        Gson gson = new Gson();
+        String value = get(url);
+        return gson.fromJson(value, new TypeToken<Map<Object, Object>>() {
+        }.getType());
+    }
+
+    public static <T> T getObject(String url, Class<T> clazz) throws Exception {
+        Gson gson = new Gson();
+        String value = get(url);
+        return gson.fromJson(value, clazz);
+    }
+
+    public static <T> T getObject(String url, Type type) throws Exception {
+        Gson gson = new Gson();
+        String value = get(url);
+        return gson.fromJson(value, type);
     }
 
     public static String get(String url, String encoding) throws Exception {

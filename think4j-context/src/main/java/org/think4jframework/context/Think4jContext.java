@@ -229,6 +229,19 @@ public class Think4jContext implements ApplicationContextAware {
         }
     }
 
+    /**
+     * 获取所有表的创建sql
+     *
+     * @return 创建sql列表
+     */
+    public static List<String> getAllCreateSql() {
+        List<String> list = new ArrayList<>();
+        for (JdbcTable jdbcTable : jdbcTableMap.values()) {
+            list.add(jdbcTable.getCreateSql());
+        }
+        return list;
+    }
+
     /***
      * 根据model的名称获取数据处理model的对象
      *

@@ -68,7 +68,7 @@ public class MysqlTable implements JdbcTable {
         StringBuilder sql = new StringBuilder();
         sql.append("SET FOREIGN_KEY_CHECKS = 0;");
         sql.append("DROP TABLE IF EXISTS `" + this.table.getName() + "`;");
-        sql.append(getCreateSql()).append(";");
+        sql.append(getCreateTableSql()).append(";");
         List<String> indexes = getCreateIndexSql();
         if (null != indexes) {
             for (String index : indexes) {
