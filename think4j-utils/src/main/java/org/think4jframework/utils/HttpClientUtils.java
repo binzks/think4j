@@ -1,7 +1,6 @@
 package org.think4jframework.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
